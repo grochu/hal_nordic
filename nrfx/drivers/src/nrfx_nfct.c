@@ -152,6 +152,11 @@ static void nrfx_nfct_hw_init_setup(void)
     // Use Window Grid frame delay mode.
     nrf_nfct_frame_delay_mode_set(NRF_NFCT, NRF_NFCT_FRAME_DELAY_MODE_WINDOWGRID);
 
+    /* Setting for improved interoperability: make the tag responsive for
+       pollers using low power detection modes. */
+    nrf_nfct_shorts_enable(NRF_NFCT, NRF_NFCT_SHORT_FIELDDETECTED_ACTIVATE_MASK);
+    *(volatile uint32_t *)0x40005684 = 0;
+
     /* Begin: Workaround for anomaly 25 */
     /* Workaround for wrong SENSRES values require using SDD00001, but here SDD00100 is used
        because it is required to operate with Windows Phone */
@@ -262,8 +267,9 @@ static void nrfx_nfct_activate_check(void)
 
     if ((m_timer_workaround.is_hfclk_on) && (m_timer_workaround.is_delayed))
     {
-        nrf_nfct_task_trigger(NRF_NFCT, NRF_NFCT_TASK_ACTIVATE);
-        is_field_validation_pending = true;
+        // Start NFCT internal calibration. NFCT is already in ACTIVATED state due to the relevant SHORT setting.
+        *(uint32_t volatile *)0x40005014 = 1;
+        is_field_validation_pending      = true;
 
         // Start the timer second time to validate whether the tag has locked to the field.
         nrfx_timer_clear(&m_timer_workaround.timer);
@@ -530,15 +536,22 @@ nrfx_err_t nrfx_nfct_tx(nrfx_nfct_data_desc_t const * p_tx_data,
 
 void nrfx_nfct_state_force(nrfx_nfct_state_t state)
 {
-#if NRFX_CHECK(USE_WORKAROUND_FOR_ANOMALY_190)
     if (state == NRFX_NFCT_STATE_ACTIVATED)
     {
+#if NRFX_CHECK(USE_WORKAROUND_FOR_ANOMALY_190)
         m_timer_workaround.is_hfclk_on = true;
-        /* NFCT will be activated based on additional conditions */
+        /* NFCT will be calibrated based on additional conditions */
         nrfx_nfct_activate_check();
+#else
+        /* Start the NFCT internal calibration.
+           The driver assumes HFCLK is running at this point, but it is
+           the upper layers' responsibility to ensure this.
+           NFCT is already in ACTIVATED state due to the relevant SHORT setting. */
+        *(uint32_t volatile *)0x40005014 = 1;
+#endif // NRFX_CHECK(USE_WORKAROUND_FOR_ANOMALY_190)
         return;
     }
-#endif // NRFX_CHECK(USE_WORKAROUND_FOR_ANOMALY_190)
+
     nrf_nfct_task_trigger(NRF_NFCT, (nrf_nfct_task_t) state);
 }
 

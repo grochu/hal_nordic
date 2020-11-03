@@ -57,7 +57,7 @@ typedef enum
 {
     NRFX_NFCT_STATE_DISABLED  = NRF_NFCT_TASK_DISABLE,  ///< NFC Tag is disabled (no sensing of an external NFC field).
     NRFX_NFCT_STATE_SENSING   = NRF_NFCT_TASK_SENSE,    ///< NFC Tag is sensing whether there is an external NFC field.
-    NRFX_NFCT_STATE_ACTIVATED = NRF_NFCT_TASK_ACTIVATE, ///< NFC Tag is powered-up (see @ref nrfx_nfct_active_state_t for possible substates).
+    NRFX_NFCT_STATE_ACTIVATED = NRF_NFCT_TASK_ACTIVATE, ///< NFC Tag is powered-up and calibrated, ready to receive data (see @ref nrfx_nfct_active_state_t for possible substates).
 } nrfx_nfct_state_t;
 
 /**
