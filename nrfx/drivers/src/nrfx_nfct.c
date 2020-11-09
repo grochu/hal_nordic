@@ -269,6 +269,7 @@ static void nrfx_nfct_activate_check(void)
     {
         // Start NFCT internal calibration. NFCT is already in ACTIVATED state due to the relevant SHORT setting.
         *(uint32_t volatile *)0x40005014 = 1;
+        NRFX_LOG_DEBUG("Activate/calibrate here!");
         is_field_validation_pending      = true;
 
         // Start the timer second time to validate whether the tag has locked to the field.

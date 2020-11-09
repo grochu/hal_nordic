@@ -537,7 +537,7 @@
 // <e> NRFX_NFCT_CONFIG_LOG_ENABLED - Enables logging in the module.
 //==========================================================
 #ifndef NRFX_NFCT_CONFIG_LOG_ENABLED
-#define NRFX_NFCT_CONFIG_LOG_ENABLED 0
+#define NRFX_NFCT_CONFIG_LOG_ENABLED 1
 #endif
 // <o> NRFX_NFCT_CONFIG_LOG_LEVEL  - Default Severity level
 
@@ -548,7 +548,7 @@
 // <4=> Debug
 
 #ifndef NRFX_NFCT_CONFIG_LOG_LEVEL
-#define NRFX_NFCT_CONFIG_LOG_LEVEL 3
+#define NRFX_NFCT_CONFIG_LOG_LEVEL 4
 #endif
 
 // <o> NRFX_NFCT_CONFIG_INFO_COLOR  - ANSI escape code prefix.
