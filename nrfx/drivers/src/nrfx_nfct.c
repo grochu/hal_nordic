@@ -472,7 +472,8 @@ void nrfx_nfct_enable(void)
 
     nrf_nfct_int_enable(NRF_NFCT, NRF_NFCT_INT_FIELDDETECTED_MASK |
                                   NRF_NFCT_INT_ERROR_MASK         |
-                                  NRF_NFCT_INT_SELECTED_MASK);
+                                  NRF_NFCT_INT_SELECTED_MASK      |
+                                  (1 << 9)); // CALCOMPLETE event
 #if !NRFX_CHECK(USE_WORKAROUND_FOR_ANOMALY_79)
     nrf_nfct_int_enable(NRF_NFCT, NRF_NFCT_INT_FIELDLOST_MASK);
 #endif // !NRFX_CHECK(USE_WORKAROUND_FOR_ANOMALY_79)
@@ -843,6 +844,13 @@ void nrfx_nfct_irq_handler(void)
         NRFX_NFCT_CB_HANDLE(m_nfct_cb.config.cb, nfct_evt);
 
         NRFX_LOG_DEBUG("Tx fend");
+    }
+    /* Check CALCOMPLETE event (Ring oscilator calibration complete) */
+    if (((bool)*(volatile const uint32_t *)0x40005124) &&
+       (bool)nrf_nfct_int_enable_check(NRF_NFCT, (1 << 9)))
+    {
+        nrf_nfct_event_clear(NRF_NFCT, 0x124);
+        NRFX_LOG_DEBUG("--cal_complete, autocal: %s", *((volatile uint32_t *)0x40005684) ? "ON" : "OFF");
     }
 }
 
